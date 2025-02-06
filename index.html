@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Rose Day Taniya</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      position: relative;
+      width: 300px;
+      height: 400px;
+      background: #fce4ec;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      text-align: center;
+    }
+    .js-up-paper {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: #ff85a2;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+      transition: all 0.25s ease-in-out;
+    }
+    .content {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      right: 10%;
+      font-size: 18px;
+      color: #333;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    .page {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .js-sticker {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      cursor: pointer;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff4081;
+      user-select: none;
+    }
+    .cursor {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="js-up-paper"></div>
+    <div class="js-sticker">💌</div>
+    
+    <!-- Page 1 -->
+    <div class="content page active" id="page-1">
+      <h2>Happy Rose Day, Taniya! 🌹</h2>
+      <p>You're the most beautiful rose in my life, and I feel so lucky to have you by my side. I love you more than words can say. 💖</p>
+      <button onclick="nextPage(2)">Next</button>
+    </div>
+    
+    <!-- Page 2 -->
+    <div class="content page" id="page-2">
+      <h2>My Heart Beats for You 💓</h2>
+      <p>Every moment with you is a blessing. I cherish every second we share. You're my heart's desire. 💞</p>
+      <button onclick="nextPage(3)">Next</button>
+    </div>
+    
+    <!-- Page 3 -->
+    <div class="content page" id="page-3">
+      <h2>Love is a Journey, and You're My Destination 💖</h2>
+      <p>With you, every day feels like a dream come true. I'm grateful for the love we share. ❤️</p>
+      <button onclick="nextPage(1)">Back to Start</button>
+    </div>
+  </div>
+
+  <script>
+    let mobile_media_query = window.matchMedia("(max-width: 400px)");
+    let tablet_media_query = window.matchMedia("(min-width: 400px) and (max-width: 600px)");
+
+    const notes = document.querySelectorAll(".js-note");
+
+    // Function that resets the size of the notes.
+    function resizeNotes() {
+      notes.forEach(note => {
+        if (note.classList.contains("active")) {
+          note.classList.remove("active");
+          gsap.set(note, {
+            height: "30%",
+            clearProps: "all"
+          });
+        }
+      });
+    }
+
+    // Main function that enables all the notes.
+    function notesReady() {
+      gsap.to(".js-envelop-content", {
+        height: "110%",
+        duration: 0.5
+      });
+
+      notes.forEach((note, i) => {
+        note.addEventListener("click", function () {
+          if (mobile_media_query.matches || tablet_media_query.matches || !mobile_media_query.matches) {
+            if (this.classList.contains("active")) {
+              this.classList.remove("active");
+              gsap.set(this, {
+                height: "30%",
+                clearProps: "all"
+              });
+            } else {
+              resizeNotes();
+              this.classList.add("active");
+              let heightPercentage = mobile_media_query.matches
+                ? 125 + 40 * i
+                : tablet_media_query.matches
+                ? 80 + 21 * i
+                : 70 + 20 * i;
+              gsap.set(this, {
+                height: `${heightPercentage}%`
+              });
+            }
+          }
+        });
+      });
+    }
+
+    // Function that sets up the up paper of the envelope.
+    function setUpPaper() {
+      var arr = [0, 0, 100, 0, 50, 61];
+      gsap.set(".js-up-paper", {
+        bottom: "97%",
+        rotation: 180,
+        zIndex: 200,
+        clipPath: `polygon(${arr[0]}% ${arr[1]}%, ${arr[2]}% ${arr[3]}%, ${arr[4]}% ${arr[5]}%)`,
+        onComplete: notesReady
+      });
+    }
+
+    // Function that starts the up paper transition.
+    function envelopTransition() {
+      gsap.to(".js-up-paper", {
+        bottom: "1%",
+        duration: 0.25,
+        onComplete: setUpPaper
+      });
+      document
+        .querySelector(".js-up-paper")
+        .removeEventListener("click", envelopTransition);
+      document.querySelector(".js-up-paper").classList.remove("cursor");
+    }
+
+    // Function that allows cutting the sticker.
+    function sticker() {
+      gsap.set(".js-sticker", { width: "20%", left: "-80%" });
+      document.body.classList.remove("scissors");
+      document.querySelector(".js-sticker").removeEventListener("click", sticker);
+      document
+        .querySelector(".js-up-paper")
+        .addEventListener("click", envelopTransition);
+      document.querySelector(".js-up-paper").classList.add("cursor");
+    }
+
+    document.querySelector(".js-sticker").addEventListener("click", sticker);
+
+    // Navigation function for pages
+    function nextPage(pageNumber) {
+      // Hide all pages
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      // Show the next page
+      document.getElementById(`page-${pageNumber}`).classList.add("active");
+    }
+
+    window.onresize = function () {
+      resizeNotes();
+    };
+
+    // Initial setup with pop effect on content
+    gsap.to(".content", {
+      opacity: 1,
+      transform: "translateY(0)",
+      duration: 1,
+      ease: "bounce.out",
+    });
+    
+    // Initial setup
+    setUpPaper();
+  </script>
+
+</body>
+</html>
